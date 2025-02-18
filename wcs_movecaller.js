@@ -235,13 +235,9 @@ document.addEventListener("click", (event) => {
     let currentSize = [...circle.classList].find(cls => cls.startsWith("size"));
 
     if (currentSize) {
-        let sizeNum = parseInt(currentSize.replace("size", ""), 10);
-        let newSize = (sizeNum + 1) % 4; // Cycles 0 → 1 → 2 → 3 → 0
-
+        let curSize = parseInt(currentSize.replace("size", ""), 10);
         let [row, col] = circle.id.split("-").map(Number);
-
-        MOVE_LIBRARY[MOVE_NAMES[row]][1][col] = newSize;
-        circle.classList.replace(currentSize, `size${newSize}`);
+        updateTransitionMatrixCell(row, col, (curSize + 1) % 4);
         // saveMoveLibrary();
     }
 });

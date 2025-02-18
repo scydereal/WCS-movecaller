@@ -2,9 +2,9 @@ const HTMLcolors = [
     'orange', 'limegreen', 'dodgerblue', 'red', 'linen', 'cyan', 'magenta', 'darkgoldenrod', 'chartreuse', 'salmon', 'gold', 'lightseagreen', 'deeppink', 'sandybrown','darkgreen', 'slateblue', 'brown', 'wheat', 'deepskyblue', 'darkviolet', 'goldenrod', 'darkolivegreen', 'darksalmon', 'gold', 'lightskyblue', 'plum', 'coral', 'powderblue', 'crimson', 'tan', 'darkmagenta', 'sienna', 'tan', 'orchid', 'blue',
 ];
 
-// we count on the fact that string keys (non-integers) are ordered in insertion order
-// and just keep a dict, moving it into a (stable) array as needed with getMoveNames
-// move name : [count, [weights]]
+// sadly, we count on the fact that string keys (non-integers) are ordered in
+// insertion order and just keep a dict, deriving the ordered MOVE_NAMES arr
+// from it. the type is: move name : [count, [weights]]. default weight = 2.
 // weights: everything is relative, but actual weight is squared
 let MOVE_LIBRARY = JSON.parse(localStorage.getItem("MOVE_LIBRARY")) || {
     "left side pass": [6, [1, 0, 2, 3, 2, 2, 2, 2, 2, 3]],
@@ -18,14 +18,15 @@ let MOVE_LIBRARY = JSON.parse(localStorage.getItem("MOVE_LIBRARY")) || {
     "outside turn":   [6, [2, 3, 2, 0, 2, 2, 2, 3, 2, 0]],
     "free turn":      [6, [2, 2, 3, 0, 2, 3, 3, 2, 3, 0]],
 }
-let utterances = getMoveNames().map(move => new SpeechSynthesisUtterance(move));
-
-function getMoveNames() {
-    return Object.keys(MOVE_LIBRARY);
+let MOVE_NAMES = Object.keys(MOVE_LIBRARY);
+let utterances = MOVE_NAMES.map(move => new SpeechSynthesisUtterance(move));
+function onMoveLibChange() {
+    MOVE_NAMES = Object.keys(MOVE_LIBRARY);
+    utterances = MOVE_NAMES.map(move => new SpeechSynthesisUtterance(move));
 }
 
 function addToLib(move) {
-    const newMovesetSize = getMoveNames().length + 1;
+    const newMovesetSize = MOVE_NAMES.length + 1;
 
     const count = move.includes("whip") ? 8 : 6; // super basic heuristic
     const weights = Array.from({ length: newMovesetSize }, () => 2);
@@ -35,16 +36,14 @@ function addToLib(move) {
     }
 
     MOVE_LIBRARY[move] = [count, weights];
-    const moveNames = getMoveNames();
-    let utterances = moveNames.map(move => new SpeechSynthesisUtterance(move));
+    onMoveLibChange();
     createTM();
     // saveMoveLibrary();
 }
 
 function removeFromLib(move) {
     delete MOVE_LIBRARY[move];
-    const moveNames = getMoveNames();
-    let utterances = moveNames.map(move => new SpeechSynthesisUtterance(move));
+    onMoveLibChange();
     createTM();
     // saveMoveLibrary();
 }
@@ -63,8 +62,7 @@ function createTM() {
     const headerRow = document.createElement("tr");
     headerRow.appendChild(document.createElement("th")); // Empty top-left corner
 
-    const moveNames = getMoveNames();
-    for (let col = 0; col < moveNames.length; col++) {
+    for (let col = 0; col < MOVE_NAMES.length; col++) {
         const colHeader = document.createElement("th");
         colHeader.classList.add("circle-container", "header-circle");
         colHeader.id = `${col}`;
@@ -82,11 +80,11 @@ function createTM() {
     table.appendChild(headerRow);
 
     // Create table body
-    for (let row = 0; row < moveNames.length; row++) {
+    for (let row = 0; row < MOVE_NAMES.length; row++) {
         const tr = document.createElement("tr");
 
         const rowLabel = document.createElement("th");
-        const moveName = moveNames[row];
+        const moveName = MOVE_NAMES[row];
         const moveCount = MOVE_LIBRARY[moveName][0];
         const nextMoveFreqs = MOVE_LIBRARY[moveName][1];
         rowLabel.textContent = moveName;
@@ -94,7 +92,7 @@ function createTM() {
         rowLabel.style.textAlign = 'right';
         tr.appendChild(rowLabel);
 
-        for (let col = 0; col < moveNames.length; col++) {
+        for (let col = 0; col < MOVE_NAMES.length; col++) {
             const cell = document.createElement("td");
             cell.classList.add("circle-container");
             
@@ -189,8 +187,8 @@ document.querySelector(".input-container input").addEventListener("keydown", (ev
     }
 });
 
-function updateTM(moveNames, row, col, val) { // val is 0, 1, 2, 3
-    MOVE_LIBRARY[moveNames[row]][1][col] = val;
+function updateTM(row, col, val) { // val is 0, 1, 2, 3
+    MOVE_LIBRARY[MOVE_NAMES[row]][1][col] = val;
     const circle = document.getElementById(`${row}-${col}`);
     let currentSize = [...circle.classList].find(cls => cls.startsWith("size"));
     circle.classList.replace(currentSize, `size${val}`);
@@ -202,18 +200,16 @@ document.addEventListener("click", (event) => {
         : event.target.closest(".header-circle"); // Find nearest container if clicked on circle
     if (!columnHeaderCircle) return;
 
-    const moveNames = getMoveNames();
-
     let col = columnHeaderCircle.id;
     let homogeneous = true;
-    for (let i = 1; i < moveNames.length; i++) {
-        if (MOVE_LIBRARY[moveNames[i-1]][1][col] != MOVE_LIBRARY[moveNames[i]][1][col]) {
+    for (let i = 1; i < MOVE_NAMES.length; i++) {
+        if (MOVE_LIBRARY[MOVE_NAMES[i-1]][1][col] != MOVE_LIBRARY[MOVE_NAMES[i]][1][col]) {
             homogeneous = false;
         }
     }
 
-    const newHomogenousVal = homogeneous ? (MOVE_LIBRARY[moveNames[0]][1][col]+1)%4 : 0;
-    for (let i = 0; i < moveNames.length; i++) updateTM(moveNames, i, col, newHomogenousVal); 
+    const newHomogenousVal = homogeneous ? (MOVE_LIBRARY[MOVE_NAMES[0]][1][col]+1)%4 : 0;
+    for (let i = 0; i < MOVE_NAMES.length; i++) updateTM(i, col, newHomogenousVal); 
 });
 
 document.addEventListener("click", (event) => {
@@ -230,10 +226,9 @@ document.addEventListener("click", (event) => {
         let sizeNum = parseInt(currentSize.replace("size", ""), 10);
         let newSize = (sizeNum + 1) % 4; // Cycles 0 → 1 → 2 → 3 → 0
 
-        const moveNames = getMoveNames();
         let [row, col] = circle.id.split("-").map(Number);
 
-        MOVE_LIBRARY[moveNames[row]][1][col] = newSize;
+        MOVE_LIBRARY[MOVE_NAMES[row]][1][col] = newSize;
         circle.classList.replace(currentSize, `size${newSize}`);
         // saveMoveLibrary();
     }
@@ -328,9 +323,8 @@ function weightedRandomIndex(weights) {
 
 // get str, return str
 function chooseNextMove(move) {
-    const moveNames = getMoveNames();
     const weights = MOVE_LIBRARY[move];
     const squared = weights.map(x => x ** 2);
     const index = weightedRandomChoice(squared);
-    return moveNames[index];
+    return MOVE_NAMES[index];
 }

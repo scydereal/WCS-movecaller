@@ -52,12 +52,20 @@ function saveMoveLibrary() {
     localStorage.setItem("MOVE_LIBRARY", JSON.stringify(MOVE_LIBRARY));
 }
 
+function createCellCircle(row, col, size) {
+    const circle = document.createElement("div");
+    circle.id = `${row}-${col}`;
+    circle.classList.add("circle");
+    circle.classList.add(`size${size}`);
+    return circle;
+}
 
 function createTM() {
     const matrix = document.querySelector(".transition-matrix");
     matrix.innerHTML = ""; // Clear existing table
     const table = document.createElement("table");
     table.classList.add("transition-table");
+
     // Create table header row
     const headerRow = document.createElement("tr");
     headerRow.appendChild(document.createElement("th")); // Empty top-left corner
@@ -95,20 +103,17 @@ function createTM() {
         for (let col = 0; col < MOVE_NAMES.length; col++) {
             const cell = document.createElement("td");
             cell.classList.add("circle-container");
-            
-            const daughter = document.createElement("div");
-            daughter.id = `${row}-${col}`;
-            daughter.classList.add("circle");
             let size = nextMoveFreqs[col];
-            daughter.classList.add(`size${size}`); // Random class from 0 to 3
-
+            const daughter = createCellCircle(row, col, size);
             cell.appendChild(daughter);
             tr.appendChild(cell);
         }
+
         tr.appendChild(createToggle(moveCount));
         tr.appendChild(createXButton());
         table.appendChild(tr);
     }
+
     matrix.appendChild(table);
     setCellBorders();
 }
@@ -175,6 +180,8 @@ function createXButton() {
     return xCell;
 }
 
+// +++ Create initial TM and set callbacks on the TM components
+
 createTM();
 
 document.querySelector(".input-container input").addEventListener("keydown", (event) => {
@@ -187,11 +194,22 @@ document.querySelector(".input-container input").addEventListener("keydown", (ev
     }
 });
 
-function updateTM(row, col, val) { // val is 0, 1, 2, 3
+function updateTransitionMatrixCell(row, col, val) { // val is 0, 1, 2, 3
     MOVE_LIBRARY[MOVE_NAMES[row]][1][col] = val;
     const circle = document.getElementById(`${row}-${col}`);
     let currentSize = [...circle.classList].find(cls => cls.startsWith("size"));
     circle.classList.replace(currentSize, `size${val}`);
+}
+
+// -1 (heteregeneous) or 0, 1, 2, 3 (homogeneous, to that value)
+function getColumnHomogeneity(col) {
+    let homogeneous = MOVE_LIBRARY[MOVE_NAMES[0]][1][col];
+    for (let i = 1; i < MOVE_NAMES.length; i++) {
+        if (MOVE_LIBRARY[MOVE_NAMES[i-1]][1][col] != MOVE_LIBRARY[MOVE_NAMES[i]][1][col]) {
+            homogeneous = -1;
+        }
+    }
+    return homogeneous;
 }
 
 document.addEventListener("click", (event) => {
@@ -201,15 +219,9 @@ document.addEventListener("click", (event) => {
     if (!columnHeaderCircle) return;
 
     let col = columnHeaderCircle.id;
-    let homogeneous = true;
-    for (let i = 1; i < MOVE_NAMES.length; i++) {
-        if (MOVE_LIBRARY[MOVE_NAMES[i-1]][1][col] != MOVE_LIBRARY[MOVE_NAMES[i]][1][col]) {
-            homogeneous = false;
-        }
-    }
-
-    const newHomogenousVal = homogeneous ? (MOVE_LIBRARY[MOVE_NAMES[0]][1][col]+1)%4 : 0;
-    for (let i = 0; i < MOVE_NAMES.length; i++) updateTM(i, col, newHomogenousVal); 
+    const columnHeterogeneity = getColumnHomogeneity(col);
+    const newVal = columnHeterogeneity < 0 ? 0 : (columnHeterogeneity+1)%4;
+    for (let i = 0; i < MOVE_NAMES.length; i++) updateTransitionMatrixCell(i, col, newVal); 
 });
 
 document.addEventListener("click", (event) => {

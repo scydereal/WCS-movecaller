@@ -187,7 +187,7 @@ createTM();
 
 document.querySelector(".input-container input").addEventListener("keydown", (event) => {
     if (event.key === "Enter") {
-        const moveName = event.target.value.trim();
+        const moveName = event.target.value.replace(/[^a-zA-Z ]/g, '');
         if (moveName) {
             addToLib(moveName);
             event.target.value = ""; // Clear input after adding

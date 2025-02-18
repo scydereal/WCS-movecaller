@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WCS Move Caller</title>
+    <link rel="stylesheet" href="wcs_movecaller.css">
+</head>
+<body>
+    <div class="everything-wrapper">
+        <div class="controls">
+            <label for="bpm">BPM:</label>
+            <span id="bpm-value">90</span> <!-- Display current BPM -->
+            <input type="range" id="bpm" min="30" max="200" value="90">
+            <button id="play">▶</button>
+        </div>
+        <div class="transition-matrix">
+        </div>
+        
+        <div class="input-container">
+            <input type="text" placeholder="  Enter move name">
+        </div>
+    </div>
+    <script src="wcs_movecaller.js"></script>
+</body>
+</html>

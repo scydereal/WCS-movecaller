@@ -1,0 +1,207 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: black;
+}
+.everything-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centers first two children */
+    width: max-content; 
+    margin: 0 auto; /* Centers the wrapper itself in the body */
+}
+
+.controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-left: 50px;
+    padding-top: 20px;
+    gap: 10px;
+    margin-bottom: 20px;
+    color: white;
+}
+
+
+
+#play {
+    font-size: 20px;
+    width: 30px;
+    height: 30px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    width: 50%;
+    margin: auto;
+}
+.grid-item {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.transition-matrix {
+    display: flex;
+    justify-content: center;  /* centers horizontally */
+    align-items: center;  /* centers vertically */
+}
+
+th {
+    color: white;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 13px;
+    font-weight: 200;
+}
+.header-circle {
+    margin-left: 1px;
+}
+.circle-container {
+    display: inline-flex;
+    justify-content: center;  /* centers horizontally */
+    align-items: center;  /* centers vertically */
+    width: 20px;
+    height: 20px;
+    position: relative;
+}
+
+.circle {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    background-color: white;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.size0 {
+    width: 12px;
+    height: 12px;
+    border: 1px solid gray;  /* white outline */
+    background-color: transparent;  /* no fill */
+}
+
+.size1 {
+    width: 4px;
+    height: 4px;
+}
+
+.size2 {
+    width: 9px;
+    height: 9px;
+}
+
+.toggle-switch {
+    width: 19px;
+    height: 10px;
+    margin-left: 5px;
+    background-color: transparent;
+    border: 1px solid white;
+    border-radius: 8px;
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 2px;
+}
+
+.toggle-circle {
+    width: 8px;
+    height: 8px;
+    background-color: white;
+    border-radius: 50%;
+    position: absolute;
+    transition: transform 0.2s ease-in-out;
+}
+
+.x-button {
+    background: none;
+    border: 1px solid lightsteelblue;
+    color: lightsteelblue;
+    margin-left: 5px;
+    font-size: 11px;
+    cursor: pointer;
+    padding: 2px;
+}
+.x-button:hover {
+    color: red;
+}
+
+.input-container {
+    margin-top: 10px;
+    align-self: flex-start;
+    transform: translateX(-2rem);
+}
+
+.input-container input {
+    width: 8rem;
+    padding: 3px;
+    background-color: #222222;  /* Gray background */
+    color: white;            /* White text */
+    border: 1px solid white; /* White border */
+    outline: none;           /* Remove default focus outline */
+    text-align: right;
+    border-radius: 3px;
+}
+.input-container input::placeholder {
+    color: #777777; /* Light gray placeholder text */
+    opacity: 1; /* Ensure full visibility (some browsers lower opacity by default) */
+    text-align: right;
+}
+
+
+/* Slider code from https://css-tip.com/custom-range-slider */
+
+.controls input {
+  --c: lightcoral; /* active color */
+  --g: 8px; /* the gap */
+  --l: 5px; /* line thickness*/
+  --s: 25px; /* thumb size*/
+  
+  width: 300px;
+  height: var(--s); /* needed for Firefox*/
+  --_c: color-mix(in srgb, var(--c), #000 var(--p,0%));
+  -webkit-appearance :none;
+  -moz-appearance :none;
+  appearance :none;
+  background: none;
+  cursor: pointer;
+  overflow: hidden;
+}
+input:focus-visible,
+input:active,
+input:focus-visible{
+  --_b: var(--s)
+}
+/* chromium */
+input[type="range" i]::-webkit-slider-thumb{
+  height: var(--s);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  box-shadow: 0 0 0 var(--_b,var(--l)) inset var(--_c);
+  border-image: linear-gradient(90deg,var(--_c) 50%,#ababab 0) 0 1/calc(50% - var(--l)/2) 100vw/0 calc(100vw + var(--g));
+  -webkit-appearance: none;
+  appearance: none;
+  transition: .3s;
+}
+/* Firefox */
+input[type="range"]::-moz-range-thumb {
+  height: var(--s);
+  width: var(--s);
+  background: none;
+  border-radius: 50%;
+  box-shadow: 0 0 0 var(--_b,var(--l)) inset var(--_c);
+  border-image: linear-gradient(90deg,var(--_c) 50%,#ababab 0) 0 1/calc(50% - var(--l)/2) 100vw/0 calc(100vw + var(--g));
+  -moz-appearance: none;
+  appearance: none;
+  transition: .3s;
+}
+@supports not (color: color-mix(in srgb,red,red)) {
+  input {
+    --_c: var(--c);
+  }
+}

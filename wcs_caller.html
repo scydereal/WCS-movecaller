@@ -20,6 +20,15 @@
         <div class="input-container">
             <input type="text" placeholder="  Enter move name">
         </div>
+        <div class="helptext">
+            <p>The big grid is a transition matrix. the rows are previous moves and the columns are next moves. The size of the circle in the second row, final column (under arm turn => free turn) indicates how often an underarm turn will lead into a free turn.</p>
+
+            <p>Click the circle to disable the transition, minimize it, default it, or maximize it. This is customizable to let you choose things like "this move is a rapid spin and I always want it to be followed up by moves that spin the follow the other way to help with dizziness" or "this move should only follow moves where the follow can see the lead wants to take the other hand".</p>
+
+            <p>The largest circle will transition into the corresponding move ~10x as often as the smallest. This exists so that if you have a new move you want to practice a lot, you can maximize the transitions leading into it so you get a lot of exposure. To set all the circles in a column at once (because you want to either disable or maximize transitions from other moves into a new move), click the column header circle.</p>
+
+            <p>Use the toggle button to the right to indicate whether a move is a 6 vs 8 count. Add or delete moves with the text input (press enter to submit) and x buttons.
+        </div>
     </div>
     <script src="wcs_movecaller.js"></script>
 </body>

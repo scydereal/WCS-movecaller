@@ -22,8 +22,6 @@ body {
     color: white;
 }
 
-
-
 #play {
     font-size: 20px;
     width: 30px;
@@ -152,6 +150,21 @@ th {
     opacity: 1; /* Ensure full visibility (some browsers lower opacity by default) */
     text-align: right;
 }
+
+.helptext {
+    width: 500px;
+    margin-top: 40px;
+    color: #606060;
+}
+
+.helptext:hover {
+    color: #cecece;
+}
+
+
+
+
+
 
 
 /* Slider code from https://css-tip.com/custom-range-slider */

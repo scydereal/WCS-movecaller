@@ -140,24 +140,25 @@ function createToggle(moveCount) {
     circle.classList.add("toggle-circle");
     toggle.appendChild(circle);
     
-    let isSix = moveCount == 6;
+    let isSix = true;
     const toggleCallback = () => {
         isSix = !isSix;
         circle.style.transform = isSix ? "translateX(0)" : "translateX(11px)";
         toggle.setAttribute("data-value", isSix ? "6" : "8");
 
-        const row = button.closest("tr"); // Find the nearest table row
+        const row = circle.closest("tr"); // Find the nearest table row
         if (!row) return;
         const firstTH = row.querySelector("th"); // Find the first <th> in the row
         if (!firstTH) return;
         MOVE_LIBRARY[firstTH.textContent][0] = isSix ? 6 : 8;
     }
-    // if (!isSix) toggleCallback(); // TODO: set initial value somehow
+    if (moveCount == 8) toggleCallback();
+    //setTimeout(toggleCallback, 100); // wait. I don't understand why but the above works and I don't need the timeout.
+
     toggle.addEventListener("click", toggleCallback);
 
     let toggleCell = document.createElement("td"); 
     toggleCell.appendChild(toggle);
-
     return toggleCell;
 }
 

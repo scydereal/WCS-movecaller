@@ -311,6 +311,7 @@ function playEightcount(bpm = DEFAULT_BPM) {
 
 let isPlaying = false;
 const playButton = document.getElementById("play");
+const playButtonText = document.querySelector("#play span");
 playButton.addEventListener("click", () => {
     if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -319,7 +320,15 @@ playButton.addEventListener("click", () => {
     speakRandomMove();
 
     isPlaying = !isPlaying;
-    playButton.textContent = isPlaying ? "■" : "▶";
+    playButtonText.textContent = isPlaying ? "■" : "▶";
+    if (isPlaying) {
+        playButtonText.style.fontSize = "20px";
+        playButtonText.style.position = "relative";
+        playButtonText.style.top = "-2px";
+    } else {
+        playButtonText.style.removeProperty("font-size");
+        playButtonText.style.removeProperty("top");
+    }
 });
 
 // +++ Transition matrix logic - no need to contort, just get it from user

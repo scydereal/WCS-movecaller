@@ -311,8 +311,18 @@ function playEightcount(bpm = DEFAULT_BPM) {
     playBeep(beatIntervalMs*8);
 }
 
+
+function getRandomMoveIndex() {
+    const randomMoveIndex = Math.floor(Math.random() * MOVE_NAMES.length);
+    console.log("random called, returned", randomMoveIndex)
+    return randomMoveIndex;
+}
+
 function weightedRandomIndex(weights) {
     const totalWeight = weights.reduce((sum, w) => sum + w, 0);
+    if (totalWeight == 0) {
+        return getRandomMoveIndex();
+    }
     let rand = Math.random() * totalWeight;
     return weights.findIndex(w => (rand -= w) < 0);
 }
@@ -326,15 +336,11 @@ function chooseNextMove(move) {
     return index;
 }
 
-function getRandomMoveIndex() {
-    return Math.floor(Math.random() * MOVE_NAMES.length);
-}
-
 let loopTimeoutId = null;
 let moveSpeakTimeoutId = null;
 function loop(moveIndex) {
     const bpm = bpmSlider.value;
-    const curMove = moveIndex < MOVE_NAMES.length ? MOVE_NAMES[moveIndex] : getRandomMoveIndex(); // technically, user might have deleted in the UI since the move was scheduled.
+    const curMove = moveIndex < MOVE_NAMES.length ? MOVE_NAMES[moveIndex] : MOVE_NAMES[getRandomMoveIndex()]; // technically, user might have deleted in the UI since the move was scheduled. I suspect this is not great and we should just freeze the table 
     const count = MOVE_LIBRARY[curMove][0];
     const beatIntervalMs = (60 / bpm) * 1000;
     const nextMoveIndex = chooseNextMove(curMove);
@@ -369,12 +375,9 @@ playButton.addEventListener("click", () => {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     }
 
-    isPlaying = !isPlaying;
-    playButtonText.textContent = isPlaying ? "■" : "▶";
-    if (isPlaying) {
-        playButtonText.style.fontSize = "20px";
-        playButtonText.style.position = "relative";
-        playButtonText.style.top = "-2px";
+    if (isPlaying) { // stop playing, set font for play button
+        playButtonText.style.removeProperty("font-size");
+        playButtonText.style.removeProperty("top");
 
         clearTimeout(loopTimeoutId);
         clearTimeout(moveSpeakTimeoutId);
@@ -383,9 +386,14 @@ playButton.addEventListener("click", () => {
             osc.disconnect();
         });
         activeOscillators = []; // Clear the list
-    } else {
-        playButtonText.style.removeProperty("font-size");
-        playButtonText.style.removeProperty("top");
+
+    } else { // start playing, set font for pause button
+        playButtonText.style.fontSize = "20px";
+        playButtonText.style.position = "relative";
+        playButtonText.style.top = "-2px";
+
         loop(getRandomMoveIndex());
     }
+    isPlaying = !isPlaying;
+    playButtonText.textContent = isPlaying ? "■" : "▶";
 });

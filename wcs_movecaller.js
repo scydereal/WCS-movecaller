@@ -271,10 +271,12 @@ function speakRandomMove() {
     speechSynthesis.speak(utterance);
 }
 
+let activeOscillators = [];
 function playBeep(time, freq=440) {
     const oscillator = audioCtx.createOscillator();
     oscillator.frequency.setValueAtTime(freq, audioCtx.currentTime);
     oscillator.connect(defaultVolume);
+    activeOscillators.push(oscillator);
 
     // audioCtx.currentTime is measured in seconds
     oscillator.start(audioCtx.currentTime + time / 1000);
@@ -309,6 +311,56 @@ function playEightcount(bpm = DEFAULT_BPM) {
     playBeep(beatIntervalMs*8);
 }
 
+function weightedRandomIndex(weights) {
+    const totalWeight = weights.reduce((sum, w) => sum + w, 0);
+    let rand = Math.random() * totalWeight;
+    return weights.findIndex(w => (rand -= w) < 0);
+}
+
+// get str, return index
+function chooseNextMove(move) {
+    const weights = MOVE_LIBRARY[move][1];
+    const squared = weights.map(x => x ** 2);
+    const index = weightedRandomIndex(squared);
+    console.log(squared);
+    return index;
+}
+
+function getRandomMoveIndex() {
+    return Math.floor(Math.random() * MOVE_NAMES.length);
+}
+
+let loopTimeoutId = null;
+let moveSpeakTimeoutId = null;
+function loop(moveIndex) {
+    const bpm = bpmSlider.value;
+    const curMove = moveIndex < MOVE_NAMES.length ? MOVE_NAMES[moveIndex] : getRandomMoveIndex(); // technically, user might have deleted in the UI since the move was scheduled.
+    const count = MOVE_LIBRARY[curMove][0];
+    const beatIntervalMs = (60 / bpm) * 1000;
+    const nextMoveIndex = chooseNextMove(curMove);
+    const nextMove = MOVE_NAMES[nextMoveIndex];
+
+    const now = Date.now();
+    console.log(`${[(now % 100000) / 1000]} ${curMove} => ${nextMove}`)
+
+    // clear prev osc array before it's populated by playBeeps
+    // schedule curMove count beeps for current move
+    activeOscillators = []
+    if (count == 6) playSixCount(bpm);
+    else playEightcount(bpm);
+
+    // get next move, schedule SAY for it
+    moveSpeakTimeoutId = setTimeout(() => {
+        speechSynthesis.speak(new SpeechSynthesisUtterance(nextMove));
+    }, 2*beatIntervalMs)
+
+    // schedule next loop
+    loopTimeoutId = setTimeout(() => {
+        loop(nextMoveIndex);
+    }, count*beatIntervalMs)
+}
+
+
 let isPlaying = false;
 const playButton = document.getElementById("play");
 const playButtonText = document.querySelector("#play span");
@@ -316,8 +368,6 @@ playButton.addEventListener("click", () => {
     if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     }
-    playEightcount(bpmSlider.value);
-    speakRandomMove();
 
     isPlaying = !isPlaying;
     playButtonText.textContent = isPlaying ? "■" : "▶";
@@ -325,24 +375,17 @@ playButton.addEventListener("click", () => {
         playButtonText.style.fontSize = "20px";
         playButtonText.style.position = "relative";
         playButtonText.style.top = "-2px";
+
+        clearTimeout(loopTimeoutId);
+        clearTimeout(moveSpeakTimeoutId);
+        activeOscillators.forEach(osc => {
+            osc.stop();
+            osc.disconnect();
+        });
+        activeOscillators = []; // Clear the list
     } else {
         playButtonText.style.removeProperty("font-size");
         playButtonText.style.removeProperty("top");
+        loop(getRandomMoveIndex());
     }
 });
-
-// +++ Transition matrix logic - no need to contort, just get it from user
-
-function weightedRandomIndex(weights) {
-    const totalWeight = weights.reduce((sum, w) => sum + w, 0);
-    let rand = Math.random() * totalWeight;
-    return weights.findIndex(w => (rand -= w) < 0);
-}
-
-// get str, return str
-function chooseNextMove(move) {
-    const weights = MOVE_LIBRARY[move];
-    const squared = weights.map(x => x ** 2);
-    const index = weightedRandomChoice(squared);
-    return MOVE_NAMES[index];
-}

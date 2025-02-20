@@ -18,16 +18,16 @@
         </div>
         
         <div class="input-container">
-            <input type="text" placeholder="  Enter new move name  ">
+            <input type="text" placeholder=" Enter new move & press enter ">
         </div>
         <div class="helptext">
-            <p>The big grid is a transition matrix. the rows are previous moves and the columns are next moves. The size of the circle in the second row, final column (under arm turn => free turn) indicates how often an underarm turn will lead into a free turn.</p>
+            <p>New leads might find it helpful to decouple the skills of "coming up with the next move on the fly" and "executing on a given move".</p>
 
-            <p>Click the circle to disable the transition, minimize it, default it, or maximize it. This is customizable to let you choose things like "this move is a rapid spin and I always want it to be followed up by moves that spin the follow the other way to help with dizziness" or "this move should only follow moves where the follow can see the lead wants to take the other hand".</p>
+            <p>The big grid is a transition matrix: the 2nd row's 4th circle size represents how often the 2nd move will lead into the 4th. There are four sizes: never, infrequent, default, and often. Click the circle to change it. This lets you choose things like "this move is a rapid spin and I usually want it to be followed up by moves that spin the follow the other way" or "this move should only follow moves where the follow has time to see the lead wants their other hand".</p>
 
-            <p>The largest circle will transition into the corresponding move ~10x as often as the smallest. This exists so that if you have a new move you want to practice a lot, you can maximize the transitions leading into it so you get a lot of exposure. To set all the circles in a column at once (because you want to either disable or maximize transitions from other moves into a new move), click the column header circle.</p>
+            <p>Click the column header circle to set all the circles in a column at once (e.g. because you want to temporarily disable transitions into it, or maximize transitions into it because it's a new move you want to practice).</p>
 
-            <p>Use the toggle button to the right to indicate whether a move is a 6 vs 8 count. Add or delete moves with the text input (press enter to submit) and x buttons.
+            <p>Use the toggle button to the right to indicate whether a move is a 6 vs 8 count. Add or delete moves with the text input (press enter to submit) and x buttons.</p>
         </div>
     </div>
     <script src="wcs_movecaller.js"></script>
